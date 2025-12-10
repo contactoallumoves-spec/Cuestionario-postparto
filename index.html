@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario CSEP Postparto</title>
+    <!-- Tailwind CSS (Estilos rápidos) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Iconos FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f9ff; padding-bottom: 80px; }
+        
+        /* Estilos de botones de selección */
+        .btn-select {
+            display: flex; align-items: center; justify-content: center;
+            padding: 8px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #64748b;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        /* Estado Activo (SÍ - Rojo) */
+        .btn-select.yes.active { background-color: #ef4444; color: white; border-color: #ef4444; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3); }
+        
+        /* Estado Activo (NO - Verde) */
+        .btn-select.no.active { background-color: #10b981; color: white; border-color: #10b981; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3); }
+
+        /* Estado Activo (Actividad - Azul) */
+        .btn-select.act.active { background-color: #0d9488; color: white; border-color: #0d9488; }
+
+        .card { background: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        
+        /* Animación de resultados */
+        #result-area { display: none; animation: slideUp 0.5s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- ESTILOS PARA IMPRESIÓN (PDF LIMPIO) --- */
+        @media print {
+            body { background-color: white; padding: 0; font-size: 12pt; }
+            .no-print, button, .header-bar, .intro-card { display: none !important; }
+            .card { box-shadow: none; border: none; margin-bottom: 10px; padding: 0; }
+            .btn-select { border: 1px solid #000; color: #000; background: white !important; padding: 2px 8px; font-size: 10pt; }
+            /* Solo dejar marcado el seleccionado en negro/gris */
+            .btn-select.active { background: #ddd !important; color: black !important; border-color: black; font-weight: bold; }
+            /* Ocultar botones no seleccionados para limpiar vista? O dejarlos para referencia. Dejémoslos pero simples. */
+            
+            input, textarea { border: none; border-bottom: 1px solid #000; padding: 0; background: transparent; width: auto; }
+            #result-area { display: block !important; }
+            #result-card { border: 2px solid #000 !important; background: none !important; color: black !important; }
+            h1, h2, h3 { color: black !important; }
+            
+            /* Ajustes específicos para que quepa en una hoja */
+            .space-y-4 { margin-top: 10px; }
+            .activity-group { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Header -->
+    <div class="bg-teal-700 text-white p-4 sticky top-0 z-50 shadow-md header-bar no-print">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <h1 class="font-bold text-lg"><i class="fas fa-baby-carriage mr-2"></i>CSEP Postparto</h1>
+        </div>
+    </div>
+
+    <div class="max-w-md mx-auto p-4 printable-area">
+        
+        <!-- Titulo solo para impresión -->
+        <div class="hidden print:block text-center mb-6 border-b-2 border-black pb-2">
+            <h1 class="text-2xl font-bold uppercase">Informe de Aptitud Física Postparto</h1>
+            <p class="text-sm">Basado en CSEP Get Active Questionnaire</p>
+        </div>
+
+        <!-- Intro -->
+        <div class="card text-center intro-card no-print">
+            <p class="text-slate-600 text-sm">
+                Completa este cuestionario para saber si es seguro comenzar a hacer ejercicio físico.
+            </p>
+        </div>
+
+        <!-- 1. DATOS -->
+        <div class="card">
+            <h2 class="font-bold text-lg text-teal-800 border-b pb-2 mb-4">1. Tus Datos</h2>
+            <div class="space-y-3">
+                <div class="flex flex-col print:flex-row print:gap-4">
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-500 uppercase">Nombre</label>
+                        <input type="text" id="nombre" class="w-full p-3 border rounded-lg bg-slate-50 mt-1 outline-none focus:ring-2 focus:ring-teal-500" placeholder="Nombre completo">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-500 uppercase">Semanas Postparto</label>
+                        <input type="number" id="semanas" class="w-full p-3 border rounded-lg bg-slate-50 mt-1 outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ej. 6">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. SALUD -->
+        <div class="card">
+            <h2 class="font-bold text-lg text-teal-800 border-b pb-2 mb-4">2. Salud (Últimos 12 meses)</h2>
+            <p class="text-xs text-slate-500 mb-4 bg-blue-50 p-2 rounded text-blue-800 no-print">
+                Responde <strong>SÍ</strong> o <strong>NO</strong> a las siguientes condiciones:
+            </p>
+            <div id="questions-list" class="space-y-4 print:space-y-2">
+                <!-- JS generará las preguntas -->
+            </div>
+        </div>
+
+        <!-- 3. ACTIVIDAD -->
+        <div class="card">
+            <h2 class="font-bold text-lg text-teal-800 border-b pb-2 mb-4">3. Actividad Física</h2>
+            <div class="space-y-4">
+                <div class="activity-group" id="group-prev">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Antes del embarazo (días/sem)</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="setActivity('prev', '0', this)" class="btn-select act">0</button>
+                        <button onclick="setActivity('prev', '1-2', this)" class="btn-select act">1-2</button>
+                        <button onclick="setActivity('prev', '3-4', this)" class="btn-select act">3-4</button>
+                        <button onclick="setActivity('prev', '5-7', this)" class="btn-select act">5-7</button>
+                    </div>
+                </div>
+                <div class="activity-group" id="group-curr">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Actualmente (días/sem)</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="setActivity('curr', '0', this)" class="btn-select act">0</button>
+                        <button onclick="setActivity('curr', '1-2', this)" class="btn-select act">1-2</button>
+                        <button onclick="setActivity('curr', '3-4', this)" class="btn-select act">3-4</button>
+                        <button onclick="setActivity('curr', '5-7', this)" class="btn-select act">5-7</button>
+                    </div>
+                </div>
+                 <div class="activity-group" id="group-goal">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Meta futura (días/sem)</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="setActivity('goal', '0', this)" class="btn-select act">0</button>
+                        <button onclick="setActivity('goal', '1-2', this)" class="btn-select act">1-2</button>
+                        <button onclick="setActivity('goal', '3-4', this)" class="btn-select act">3-4</button>
+                        <button onclick="setActivity('goal', '5-7', this)" class="btn-select act">5-7</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Preocupaciones (Opcional)</label>
+                    <textarea id="preocupacion" rows="2" class="w-full p-3 border rounded-lg bg-slate-50 text-sm"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTÓN ACCIÓN (SOLO PANTALLA) -->
+        <button onclick="calculate()" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg text-lg mb-6 transition transform active:scale-95 no-print">
+            VER RESULTADOS
+        </button>
+
+        <!-- RESULTADOS -->
+        <div id="result-area">
+            <div id="result-card" class="card text-center border-2"></div>
+            
+            <!-- Botonera Final -->
+            <div class="space-y-3 no-print">
+                <!-- BOTÓN COMBINADO -->
+                <button onclick="printAndSend()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center text-lg transition">
+                    <i class="fas fa-print mr-3"></i> Guardar PDF y Enviar
+                </button>
+
+                <!-- Solo WhatsApp -->
+                <button onclick="sendWhatsApp()" class="w-full bg-green-100 hover:bg-green-200 text-green-800 font-bold py-3 rounded-xl shadow flex items-center justify-center text-base transition">
+                    <i class="fab fa-whatsapp mr-2"></i> Solo WhatsApp
+                </button>
+                
+                <div class="text-center pt-2">
+                    <button onclick="location.reload()" class="text-slate-400 text-sm underline">Empezar de nuevo</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer Print -->
+        <div class="hidden print:block text-center text-xs mt-8 border-t pt-2">
+            <p>Generado digitalmente. Fecha: <span id="print-date"></span></p>
+        </div>
+
+    </div>
+
+    <script>
+        document.getElementById('print-date').innerText = new Date().toLocaleDateString();
+
+        const questions = [
+            { id: 'a', text: 'Desmayos / Pérdida conocimiento' },
+            { id: 'b', text: 'Problemas de equilibrio' },
+            { id: 'c', text: 'Trombosis o coágulos' },
+            { id: 'd', text: 'Presión alta inestable' },
+            { id: 'e', text: 'Desnutrición' },
+            { id: 'f', text: 'Problemas cardíacos' },
+            { id: 'g', text: 'Dolor de pecho' },
+            { id: 'h', text: 'Dolor abdominal intenso' },
+            { id: 'i', text: 'Mareos al ejercitar' },
+            { id: 'j', text: 'Falta de aire en reposo' },
+            { id: 'k', text: 'Enfermedad renal' },
+            { id: 'l', text: 'Fatiga extrema' },
+            { id: 'm', text: 'Infección grave / Fiebre' },
+            { id: 'n', text: 'Lesiones óseas recientes' },
+            { id: 'o', text: 'Dolor en cesárea al moverse' },
+            { id: 'p', text: 'Sangrado vaginal anormal' }
+        ];
+
+        let answers = {};
+        let activity = { prev: '', curr: '', goal: '' };
+
+        // 1. Renderizar preguntas
+        const qContainer = document.getElementById('questions-list');
+        questions.forEach(q => {
+            const div = document.createElement('div');
+            div.className = "flex justify-between items-center border-b border-slate-100 pb-3 last:border-0 last:pb-0 print:border-slate-300";
+            div.innerHTML = `
+                <span class="text-sm text-slate-700 w-2/3 pr-2 leading-tight print:text-black">${q.text}</span>
+                <div class="flex gap-2 shrink-0" id="q-${q.id}">
+                    <button onclick="setAnswer('${q.id}', 'yes', this)" class="btn-select yes text-xs">SÍ</button>
+                    <button onclick="setAnswer('${q.id}', 'no', this)" class="btn-select no text-xs">NO</button>
+                </div>
+            `;
+            qContainer.appendChild(div);
+        });
+
+        // 2. Funciones de selección
+        function setAnswer(id, val, btn) {
+            answers[id] = val;
+            const parent = document.getElementById(`q-${id}`);
+            parent.querySelectorAll('.btn-select').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function setActivity(type, val, btn) {
+            activity[type] = val;
+            const parent = document.getElementById(`group-${type}`);
+            parent.querySelectorAll('.btn-select').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // 3. Calcular
+        function calculate() {
+            const nombre = document.getElementById('nombre').value;
+            if(!nombre) return alert("Por favor escribe tu nombre al principio.");
+
+            const hasRisk = Object.values(answers).some(val => val === 'yes');
+            const card = document.getElementById('result-card');
+            
+            if(hasRisk) {
+                card.className = "card text-center border-2 border-red-200 bg-red-50";
+                card.innerHTML = `
+                    <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-3 no-print"></i>
+                    <h3 class="text-xl font-bold text-red-800 print:text-black">REQUIERE CONSULTA</h3>
+                    <p class="text-red-700 text-sm mt-2 print:text-black">Hay respuestas positivas. Se recomienda consultar al médico.</p>
+                `;
+            } else {
+                card.className = "card text-center border-2 border-green-200 bg-green-50";
+                card.innerHTML = `
+                    <i class="fas fa-check-circle text-4xl text-green-500 mb-3 no-print"></i>
+                    <h3 class="text-xl font-bold text-green-800 print:text-black">APTA PARA EJERCICIO</h3>
+                    <p class="text-green-700 text-sm mt-2 print:text-black">No se detectaron contraindicaciones en el cuestionario.</p>
+                `;
+            }
+
+            document.getElementById('result-area').style.display = 'block';
+            document.getElementById('result-area').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 4. Preparar Texto WhatsApp
+        function getWhatsAppText() {
+            const nombre = document.getElementById('nombre').value;
+            const semanas = document.getElementById('semanas').value;
+            const concern = document.getElementById('preocupacion').value;
+            const hasRisk = Object.values(answers).some(val => val === 'yes');
+            
+            let riskList = "";
+            if (hasRisk) {
+                for (const [key, val] of Object.entries(answers)) {
+                    if (val === 'yes') {
+                        const qText = questions.find(q => q.id === key)?.text || key;
+                        riskList += `\n❌ ${qText}`;
+                    }
+                }
+            } else {
+                riskList = "\n✅ Todo Normal";
+            }
+
+            return `📋 *INFORME CSEP POSTPARTO*\n------------------\n👤 *Paciente:* ${nombre}\n📅 *Fecha:* ${new Date().toLocaleDateString()}\n👶 *Postparto:* ${semanas} semanas\n------------------\n🚦 *RESULTADO:* ${hasRisk ? "🔴 REQUIERE CONSULTA" : "🟢 APTO"}\n\n🩺 *SALUD:*${riskList}\n\n📊 *ACTIVIDAD:*\n• Antes: ${activity.prev || '-'}\n• Ahora: ${activity.curr || '-'}\n• Meta: ${activity.goal || '-'}\n\n📝: ${concern || '-'}`;
+        }
+
+        // 5. Enviar solo WhatsApp
+        function sendWhatsApp() {
+            const text = getWhatsAppText();
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        // 6. FUNCIÓN DOBLE: Imprimir y luego Enviar
+        function printAndSend() {
+            // Configurar un evento que se dispare DESPUÉS de imprimir
+            // Nota: onafterprint funciona en la mayoría de navegadores modernos
+            window.onafterprint = function() {
+                // Pequeña pausa para asegurar que el navegador volvió a estar activo
+                setTimeout(function() {
+                    const confirmSend = confirm("¿El PDF se guardó correctamente? \n\nPresiona Aceptar para abrir WhatsApp y enviar el reporte.");
+                    if(confirmSend) {
+                        sendWhatsApp();
+                    }
+                }, 500);
+                
+                // Limpiar el evento para que no se dispare si imprime de nuevo manualmente
+                window.onafterprint = null;
+            };
+
+            // Disparar impresión
+            window.print();
+            
+            // Fallback para móviles (iOS a veces no dispara onafterprint correctamente)
+            // Si el usuario está en móvil, mostramos el mensaje de WhatsApp después de 2 segundos
+            // asumiendo que ya vio el diálogo de impresión.
+            if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                 setTimeout(function() {
+                     // No podemos forzarlo, pero podemos sugerirlo si onafterprint falla
+                     // Pero en iOS Safari el script se pausa, así que esto correrá al volver.
+                     if(!window.onafterprint) return; // Si ya se manejó, salir.
+                     
+                     // Si llegamos aquí, forzamos el envío
+                     sendWhatsApp();
+                 }, 3000); 
+            }
+        }
+    </script>
+</body>
+</html>
