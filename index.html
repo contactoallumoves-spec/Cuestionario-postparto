@@ -39,14 +39,14 @@
         #result-area { display: none; animation: slideUp 0.5s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- ESTILOS PARA IMPRESIÓN (PDF LIMPIO) --- */
+        /* --- ESTILOS PARA PDF (SOLO SE VEN AL GUARDAR/IMPRIMIR) --- */
         @media print {
             body { background-color: white; padding: 0; font-size: 11pt; color: black; }
             
             /* Ocultar elementos de navegación y decorativos */
             .no-print, .header-bar, .intro-card { display: none !important; }
             
-            /* Ocultar botones de acción grandes (Calcular, Enviar) */
+            /* Ocultar botones de acción grandes */
             button:not(.btn-select) { display: none !important; }
 
             /* REGLA CORREGIDA: Mostrar botones de selección y forzar estilo */
@@ -191,14 +191,14 @@
             
             <!-- Botonera Final -->
             <div class="space-y-3 no-print">
-                <!-- BOTÓN COMBINADO -->
-                <button onclick="printAndSend()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center text-lg transition">
-                    <i class="fas fa-print mr-3"></i> Guardar PDF y Enviar
+                <!-- BOTÓN GUARDAR PDF -->
+                <button onclick="saveAsPDF()" class="w-full bg-slate-600 hover:bg-slate-700 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center text-lg transition">
+                    <i class="fas fa-file-pdf mr-3"></i> Guardar como PDF
                 </button>
 
-                <!-- Solo WhatsApp -->
-                <button onclick="sendWhatsApp()" class="w-full bg-green-100 hover:bg-green-200 text-green-800 font-bold py-3 rounded-xl shadow flex items-center justify-center text-base transition">
-                    <i class="fab fa-whatsapp mr-2"></i> Solo WhatsApp
+                <!-- BOTÓN WHATSAPP -->
+                <button onclick="sendWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center text-lg transition transform hover:-translate-y-1">
+                    <i class="fab fa-whatsapp text-2xl mr-3"></i> Enviar por WhatsApp
                 </button>
                 
                 <div class="text-center pt-2">
@@ -215,6 +215,13 @@
     </div>
 
     <script>
+        // --- CONFIGURACIÓN PARA EL PROFESIONAL ---
+        // Si quieres que el mensaje se envíe DIRECTO a ti, pon tu número aquí abajo entre comillas.
+        // Ejemplo: const professionalPhone = "56912345678"; (Sin el +)
+        // Si lo dejas vacío (""), el paciente tendrá que elegirte en su lista de contactos.
+        const professionalPhone = ""; 
+        // ----------------------------------------
+
         document.getElementById('print-date').innerText = new Date().toLocaleDateString();
 
         const questions = [
@@ -297,8 +304,20 @@
             document.getElementById('result-area').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // 4. Preparar Texto WhatsApp
-        function getWhatsAppText() {
+        // 4. Guardar como PDF (Con alerta para iPhone)
+        function saveAsPDF() {
+            // Detectar si es iPhone/iPad
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            
+            if (isIOS) {
+                alert("🍎 INSTRUCCIONES PARA IPHONE:\n\n1. Se abrirá una vista previa.\n2. Toca el botón 'Compartir' (cuadrado con flecha).\n3. Elige 'Guardar en Archivos'.");
+            }
+            
+            window.print();
+        }
+
+        // 5. Enviar por WhatsApp
+        function sendWhatsApp() {
             const nombre = document.getElementById('nombre').value;
             const semanas = document.getElementById('semanas').value;
             const concern = document.getElementById('preocupacion').value;
@@ -316,48 +335,17 @@
                 riskList = "\n✅ Todo Normal";
             }
 
-            return `📋 *INFORME CSEP POSTPARTO*\n------------------\n👤 *Paciente:* ${nombre}\n📅 *Fecha:* ${new Date().toLocaleDateString()}\n👶 *Postparto:* ${semanas} semanas\n------------------\n🚦 *RESULTADO:* ${hasRisk ? "🔴 REQUIERE CONSULTA" : "🟢 APTO"}\n\n🩺 *SALUD:*${riskList}\n\n📊 *ACTIVIDAD:*\n• Antes: ${activity.prev || '-'}\n• Ahora: ${activity.curr || '-'}\n• Meta: ${activity.goal || '-'}\n\n📝: ${concern || '-'}`;
-        }
-
-        // 5. Enviar solo WhatsApp
-        function sendWhatsApp() {
-            const text = getWhatsAppText();
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-        }
-
-        // 6. FUNCIÓN DOBLE: Imprimir y luego Enviar
-        function printAndSend() {
-            // Configurar un evento que se dispare DESPUÉS de imprimir
-            // Nota: onafterprint funciona en la mayoría de navegadores modernos
-            window.onafterprint = function() {
-                // Pequeña pausa para asegurar que el navegador volvió a estar activo
-                setTimeout(function() {
-                    const confirmSend = confirm("¿El PDF se guardó correctamente? \n\nPresiona Aceptar para abrir WhatsApp y enviar el reporte.");
-                    if(confirmSend) {
-                        sendWhatsApp();
-                    }
-                }, 500);
-                
-                // Limpiar el evento para que no se dispare si imprime de nuevo manualmente
-                window.onafterprint = null;
-            };
-
-            // Disparar impresión
-            window.print();
+            const text = `📋 *INFORME CSEP POSTPARTO*\n------------------\n👤 *Paciente:* ${nombre}\n📅 *Fecha:* ${new Date().toLocaleDateString()}\n👶 *Postparto:* ${semanas} semanas\n------------------\n🚦 *RESULTADO:* ${hasRisk ? "🔴 REQUIERE CONSULTA" : "🟢 APTO"}\n\n🩺 *SALUD:*${riskList}\n\n📊 *ACTIVIDAD:*\n• Antes: ${activity.prev || '-'}\n• Ahora: ${activity.curr || '-'}\n• Meta: ${activity.goal || '-'}\n\n📝: ${concern || '-'}`;
             
-            // Fallback para móviles (iOS a veces no dispara onafterprint correctamente)
-            // Si el usuario está en móvil, mostramos el mensaje de WhatsApp después de 2 segundos
-            // asumiendo que ya vio el diálogo de impresión.
-            if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                 setTimeout(function() {
-                     // No podemos forzarlo, pero podemos sugerirlo si onafterprint falla
-                     // Pero en iOS Safari el script se pausa, así que esto correrá al volver.
-                     if(!window.onafterprint) return; // Si ya se manejó, salir.
-                     
-                     // Si llegamos aquí, forzamos el envío
-                     sendWhatsApp();
-                 }, 3000); 
+            // Construir URL
+            let whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+            
+            // Si hay número configurado, agregarlo
+            if (professionalPhone && professionalPhone.length > 5) {
+                whatsappUrl += `&phone=${professionalPhone}`;
             }
+
+            window.open(whatsappUrl, '_blank');
         }
     </script>
 </body>
