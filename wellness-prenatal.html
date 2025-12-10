@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Prenatal & Kine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #fdf2f8; padding-bottom: 100px; }
+        
+        /* Colores tema Prenatal (Rosa/Lila) */
+        .bg-theme { background-color: #db2777; }
+        .text-theme { color: #db2777; }
+        .border-theme { border-color: #db2777; }
+        .bg-theme-light { background-color: #fce7f3; }
+        .bg-edu { background-color: #f0fdf4; border-left: 4px solid #10b981; } /* Fondo para tips educativos */
+
+        /* Estilos de botones de escala (1-5) */
+        .scale-btn {
+            width: 100%; height: 45px;
+            border: 1px solid #cbd5e1; border-radius: 8px;
+            font-weight: bold; color: #64748b; background: white;
+            cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        .scale-btn.active {
+            background-color: #db2777; color: white; border-color: #db2777; 
+            box-shadow: 0 4px 6px -1px rgba(219, 39, 119, 0.3); transform: scale(1.05);
+        }
+
+        /* Botones de opción (Texto) */
+        .option-btn {
+            padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 8px;
+            background: white; color: #475569; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.2s; text-align: center;
+        }
+        .option-btn.active {
+            background-color: #be185d; color: white; border-color: #be185d;
+        }
+
+        /* Checkbox estilo botón rojo */
+        .check-btn {
+            display: flex; align-items: center; padding: 12px;
+            border: 1px solid #fee2e2; border-radius: 8px;
+            background: #fff1f2; color: #991b1b; cursor: pointer;
+            transition: all 0.2s; font-weight: 500;
+        }
+        .check-btn.active {
+            background-color: #ef4444; color: white; border-color: #ef4444;
+        }
+
+        .card { background: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #fbcfe8; }
+        
+        /* Caja de Feedback Educativo */
+        .edu-box {
+            display: none; /* Oculto por defecto */
+            margin-top: 10px; padding: 12px;
+            border-radius: 8px; font-size: 0.85rem;
+            color: #064e3b; animation: fadeIn 0.5s ease;
+        }
+        .edu-box.visible { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Estilos Impresión / PDF */
+        @media print {
+            body { background: white; padding: 0; color: black; }
+            .no-print, .header-bar, button:not(.scale-btn):not(.option-btn) { display: none !important; }
+            .card { box-shadow: none; border: none; margin-bottom: 15px; padding: 0; border-bottom: 1px solid #ddd; page-break-inside: avoid; }
+            .scale-btn, .option-btn { border: 1px solid #ccc; color: #999; height: 30px; font-size: 9pt; }
+            .scale-btn.active, .option-btn.active { background: #eee !important; color: black !important; border: 2px solid black !important; font-weight: bold; }
+            .edu-box { display: none !important; } /* No imprimir los tips educativos */
+            input, textarea { border: none; border-bottom: 1px solid black; }
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Header -->
+    <div class="bg-theme text-white p-4 sticky top-0 z-50 shadow-md header-bar no-print">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <h1 class="font-bold text-lg"><i class="fas fa-heart-pulse mr-2"></i>Wellness Prenatal</h1>
+            <span class="text-xs bg-pink-800 px-2 py-1 rounded">Kine & Obstetricia</span>
+        </div>
+    </div>
+
+    <div class="max-w-md mx-auto p-4 printable-area">
+        
+        <!-- Intro -->
+        <div class="card text-center no-print">
+            <p class="text-slate-600 text-sm">
+                Tu reporte semanal para ajustar el entrenamiento y cuidar tu suelo pélvico.
+            </p>
+        </div>
+
+        <!-- 1. DATOS BASES -->
+        <div class="card">
+            <h2 class="font-bold text-lg text-theme border-b border-pink-200 pb-2 mb-4">1. Datos Semanales</h2>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase">Nombre</label>
+                    <input type="text" id="nombre" class="w-full p-3 border rounded-lg bg-pink-50 mt-1 outline-none focus:ring-2 focus:ring-pink-500" placeholder="Nombre de la alumna">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase">Semana de Gestación</label>
+                    <input type="number" id="semana" class="w-full p-3 border rounded-lg bg-pink-50 mt-1 outline-none focus:ring-2 focus:ring-pink-500" placeholder="Ej. 24">
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. BANDERAS ROJAS (SEGURIDAD) -->
+        <div class="card bg-red-50 border-red-200">
+            <h2 class="font-bold text-lg text-red-700 border-b border-red-200 pb-2 mb-2">
+                <i class="fas fa-shield-alt mr-2"></i>Seguridad
+            </h2>
+            <p class="text-xs text-red-600 mb-4">Si presentas alguno hoy, NO ENTRENES y avísame.</p>
+            
+            <div class="space-y-2">
+                <button onclick="toggleRedFlag(this, 'Sangrado vaginal')" class="check-btn w-full justify-between">
+                    <span>Sangrado vaginal</span> <i class="far fa-square"></i>
+                </button>
+                <button onclick="toggleRedFlag(this, 'Mareos/Dolor de cabeza')" class="check-btn w-full justify-between">
+                    <span>Mareos / Dolor cabeza intenso</span> <i class="far fa-square"></i>
+                </button>
+                <button onclick="toggleRedFlag(this, 'Contracciones dolorosas')" class="check-btn w-full justify-between">
+                    <span>Contracciones regulares/dolorosas</span> <i class="far fa-square"></i>
+                </button>
+                <button onclick="toggleRedFlag(this, 'Pérdida de líquido')" class="check-btn w-full justify-between">
+                    <span>Pérdida de líquido amniótico</span> <i class="far fa-square"></i>
+                </button>
+                <button onclick="toggleRedFlag(this, 'Dolor pantorrilla/Pecho')" class="check-btn w-full justify-between">
+                    <span>Dolor agudo en pantorrilla o pecho</span> <i class="far fa-square"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. WELLNESS (1-5) CON FEEDBACK -->
+        <div class="card">
+            <h2 class="font-bold text-lg text-theme border-b border-pink-200 pb-2 mb-4">3. Bienestar (Wellness)</h2>
+            
+            <!-- Sueño -->
+            <div class="mb-6">
+                <div class="flex justify-between mb-2">
+                    <label class="font-bold text-slate-700 text-sm">Calidad de Sueño</label>
+                    <span class="text-xs text-slate-400 font-bold" id="label-sueno">-</span>
+                </div>
+                <div class="grid grid-cols-5 gap-2" id="scale-sueno">
+                    <button onclick="setScale('sueno', 1, 'Pésimo')" class="scale-btn">1</button>
+                    <button onclick="setScale('sueno', 2, 'Malo')" class="scale-btn">2</button>
+                    <button onclick="setScale('sueno', 3, 'Regular')" class="scale-btn">3</button>
+                    <button onclick="setScale('sueno', 4, 'Bueno')" class="scale-btn">4</button>
+                    <button onclick="setScale('sueno', 5, 'Excelente')" class="scale-btn">5</button>
+                </div>
+                <!-- Feedback Educativo -->
+                <div id="edu-sueno" class="edu-box bg-blue-50 border-l-4 border-blue-400">
+                    💡 <strong>Tip Kine:</strong> El descanso es parte del entrenamiento. Si duermes mal, hoy priorizaremos ejercicios de movilidad y respiración en lugar de fuerza intensa. ¡Una siesta de 20 min ayuda!
+                </div>
+            </div>
+
+            <!-- Energía -->
+            <div class="mb-6">
+                <div class="flex justify-between mb-2">
+                    <label class="font-bold text-slate-700 text-sm">Nivel de Energía</label>
+                    <span class="text-xs text-slate-400 font-bold" id="label-energia">-</span>
+                </div>
+                <div class="grid grid-cols-5 gap-2" id="scale-energia">
+                    <button onclick="setScale('energia', 1, 'Agotada')" class="scale-btn">1</button>
+                    <button onclick="setScale('energia', 2, 'Baja')" class="scale-btn">2</button>
+                    <button onclick="setScale('energia', 3, 'Normal')" class="scale-btn">3</button>
+                    <button onclick="setScale('energia', 4, 'Alta')" class="scale-btn">4</button>
+                    <button onclick="setScale('energia', 5, 'A tope')" class="scale-btn">5</button>
+                </div>
+                 <div id="edu-energia" class="edu-box bg-orange-50 border-l-4 border-orange-400">
+                    💡 <strong>Tranquila:</strong> Es normal tener días bajos. Escucha a tu cuerpo; a veces 'hacer menos es más'. Adaptaremos la carga de hoy para que te vayas sintiendo mejor, no peor.
+                </div>
+            </div>
+
+            <!-- Estrés -->
+            <div class="mb-2">
+                <div class="flex justify-between mb-2">
+                    <label class="font-bold text-slate-700 text-sm">Nivel de Estrés</label>
+                    <span class="text-xs text-slate-400 font-bold" id="label-estres">-</span>
+                </div>
+                <div class="grid grid-cols-5 gap-2" id="scale-estres">
+                    <button onclick="setScale('estres', 5, 'Zen')" class="scale-btn text-green-600"><i class="far fa-smile"></i></button>
+                    <button onclick="setScale('estres', 4, 'Bajo')" class="scale-btn">2</button>
+                    <button onclick="setScale('estres', 3, 'Medio')" class="scale-btn">3</button>
+                    <button onclick="setScale('estres', 2, 'Alto')" class="scale-btn">4</button>
+                    <button onclick="setScale('estres', 1, 'Muy Alto')" class="scale-btn text-red-500"><i class="far fa-frown-open"></i></button>
+                </div>
+                 <div id="edu-estres" class="edu-box bg-purple-50 border-l-4 border-purple-400">
+                    💡 <strong>Respira:</strong> El cortisol afecta al bebé y a tu recuperación. Hoy enfócate en la exhalación larga durante los ejercicios. ¡El movimiento consciente es tu mejor medicina!
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. MONITOREO DE CARGA (NUEVO) -->
+        <div class="card">
+            <h2 class="font-bold text-lg text-theme border-b border-pink-200 pb-2 mb-4">4. Ajuste de Carga</h2>
+            <p class="text-xs text-slate-500 mb-3">Sobre la semana/sesión anterior:</p>
+            
+            <div class="mb-5">
+                <p class="font-bold text-slate-700 text-sm mb-2">¿Cómo sentiste la intensidad?</p>
+                <div class="flex gap-2" id="rpe-group">
+                    <button onclick="setOption('rpe', 'Muy Suave', this)" class="option-btn w-1/3">Muy Suave</button>
+                    <button onclick="setOption('rpe', 'Adecuada', this)" class="option-btn w-1/3">Adecuada</button>
+                    <button onclick="setOption('rpe', 'Excesiva', this)" class="option-btn w-1/3">Muy Fuerte</button>
+                </div>
+                <div id="edu-rpe" class="edu-box bg-yellow-50 border-l-4 border-yellow-400">
+                    💡 <strong>Ajuste:</strong> Gracias por avisar. Si fue excesiva, bajaremos volumen o peso esta semana. El objetivo es mantenernos activas, no exhaustas.
+                </div>
+            </div>
+
+            <div class="mb-2">
+                <p class="font-bold text-slate-700 text-sm mb-2">Recuperación Post-Entreno</p>
+                <div class="flex gap-2" id="recu-group">
+                    <button onclick="setOption('recu', 'Rápida', this)" class="option-btn w-1/2">Quedé bien</button>
+                    <button onclick="setOption('recu', 'Lenta/Dolor', this)" class="option-btn w-1/2">Quedé adolorida</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. KINE OBSTÉTRICA -->
+        <div class="card">
+            <h2 class="font-bold text-lg text-theme border-b border-pink-200 pb-2 mb-4">5. Check Kine & Suelo Pélvico</h2>
+            
+            <!-- Escapes de Orina -->
+            <div class="mb-5">
+                <p class="font-bold text-slate-700 text-sm mb-2">¿Pérdidas de orina?</p>
+                <div class="flex gap-2" id="pee-group">
+                    <button onclick="setOption('pee', 'No', this)" class="option-btn w-1/3">No</button>
+                    <button onclick="setOption('pee', 'Esfuerzo', this)" class="option-btn w-1/3">Al toser/saltar</button>
+                    <button onclick="setOption('pee', 'Urgencia', this)" class="option-btn w-1/3">Ganas súbitas</button>
+                </div>
+                <div id="edu-pee" class="edu-box bg-pink-50 border-l-4 border-pink-400">
+                    💡 <strong>Ojo Clínico:</strong> Las pérdidas NO son normales, pero sí comunes. Ajustaremos los impactos y revisaremos tu gestión de presión (respiración) en los ejercicios.
+                </div>
+            </div>
+
+            <!-- Pesadez -->
+            <div class="mb-5">
+                <p class="font-bold text-slate-700 text-sm mb-2">¿Sensación de pesadez vaginal?</p>
+                <div class="flex gap-2" id="pesadez-group">
+                    <button onclick="setOption('pesadez', 'No', this)" class="option-btn w-1/3">No</button>
+                    <button onclick="setOption('pesadez', 'Al final día', this)" class="option-btn w-1/3">Al final día</button>
+                    <button onclick="setOption('pesadez', 'Constante', this)" class="option-btn w-1/3">Constante</button>
+                </div>
+                <div id="edu-pesadez" class="edu-box bg-pink-50 border-l-4 border-pink-400">
+                    💡 <strong>Tip:</strong> Si hay pesadez, evita estar mucho tiempo de pie hoy. Usa una postura invertida (caderas más altas que el corazón) por 5 min para aliviar.
+                </div>
+            </div>
+
+            <!-- Dolor -->
+            <div class="mb-2">
+                <label class="font-bold text-slate-700 text-sm block mb-2">Dolor Pélvico / Pubis / Lumbar</label>
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="text-xs">0</span>
+                    <input type="range" id="dolor" min="0" max="10" value="0" class="w-full accent-pink-600 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" oninput="updatePain(this.value)">
+                    <span class="font-bold text-lg text-theme w-6" id="dolor-val">0</span>
+                </div>
+                <div id="edu-dolor" class="edu-box bg-red-50 border-l-4 border-red-400">
+                    💡 <strong>Atención:</strong> Con dolor sobre 5, modificaremos ejercicios. Evita apoyos a una pierna o aperturas excesivas hoy.
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTAS -->
+        <div class="card">
+            <h2 class="font-bold text-lg text-theme border-b border-pink-200 pb-2 mb-4">6. Comentarios</h2>
+            <textarea id="notas" rows="2" class="w-full p-3 border rounded-lg bg-pink-50 text-sm" placeholder="¿Dudas específicas?"></textarea>
+        </div>
+
+        <!-- BOTONES FINALES -->
+        <div class="space-y-3 no-print pb-8">
+            <button onclick="saveAsPDF()" class="w-full bg-slate-600 hover:bg-slate-700 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center text-lg transition">
+                <i class="fas fa-file-pdf mr-3"></i> Guardar PDF
+            </button>
+
+            <button onclick="sendWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center text-lg transition transform hover:-translate-y-1">
+                <i class="fab fa-whatsapp text-2xl mr-3"></i> Enviar a mi Kine
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN ---
+        const professionalPhone = ""; 
+
+        // ESTADO
+        let wellness = { sueno: null, energia: null, estres: null };
+        let load = { rpe: null, recu: null };
+        let kine = { pee: null, pesadez: null };
+        let redFlags = [];
+
+        // UI FUNCIONES
+        function setScale(type, val, labelText) {
+            wellness[type] = val;
+            document.getElementById(`label-${type}`).innerText = labelText;
+            
+            const container = document.getElementById(`scale-${type}`);
+            container.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('button').classList.add('active');
+
+            // Lógica Educativa (Mostrar mensaje si el valor es "malo")
+            const eduBox = document.getElementById(`edu-${type}`);
+            if (eduBox) {
+                // Si sueño/energía <= 2 o estrés <= 2 (1 es muy alto estrés en la UI visualmente es botón rojo)
+                if (val <= 2) eduBox.classList.add('visible');
+                else eduBox.classList.remove('visible');
+            }
+        }
+
+        function setOption(type, val, btn) {
+            // Guardar en el objeto correcto según prefijo
+            if(type === 'rpe' || type === 'recu') load[type] = val;
+            else kine[type] = val;
+
+            const container = document.getElementById(`${type}-group`);
+            container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Feedback educativo específico
+            const eduBox = document.getElementById(`edu-${type}`);
+            if(eduBox) {
+                // Mostrar si la respuesta indica problema
+                if (val === 'Excesiva' || val === 'Esfuerzo' || val === 'Urgencia' || val === 'Constante' || val === 'Al final día') {
+                    eduBox.classList.add('visible');
+                } else {
+                    eduBox.classList.remove('visible');
+                }
+            }
+        }
+
+        function updatePain(val) {
+            document.getElementById('dolor-val').innerText = val;
+            const eduBox = document.getElementById('edu-dolor');
+            if(val >= 5) eduBox.classList.add('visible');
+            else eduBox.classList.remove('visible');
+        }
+
+        function toggleRedFlag(btn, name) {
+            if(redFlags.includes(name)) {
+                redFlags = redFlags.filter(i => i !== name);
+                btn.classList.remove('active');
+                btn.querySelector('i').className = "far fa-square";
+            } else {
+                redFlags.push(name);
+                btn.classList.add('active');
+                btn.querySelector('i').className = "far fa-check-square";
+            }
+        }
+
+        function saveAsPDF() {
+            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                alert("Para guardar en iPhone:\n\n1. En la vista previa, toca 'Compartir'.\n2. Elige 'Guardar en Archivos'.");
+            }
+            window.print();
+        }
+
+        function sendWhatsApp() {
+            const nombre = document.getElementById('nombre').value;
+            const semana = document.getElementById('semana').value;
+            const dolor = document.getElementById('dolor').value;
+            const notas = document.getElementById('notas').value;
+
+            if(!nombre || !semana) {
+                alert("Por favor completa tu nombre y semana de gestación.");
+                return;
+            }
+
+            // Lógica de Estado General (Para el título del mensaje)
+            const hasRedFlags = redFlags.length > 0;
+            const needsAdaptation = (wellness.energia && wellness.energia <= 2) || dolor >= 5 || kine.pee !== 'No' || kine.pesadez !== 'No';
+            
+            let status = "🟢 LISTA (Carga Normal)";
+            if (hasRedFlags) status = "🔴 ALERTA ROJA";
+            else if (needsAdaptation) status = "🟡 ADAPTAR CARGA (Ver detalles)";
+
+            // Construir Mensaje Profesional
+            let msg = `🤰 *REPORTE SEMANAL KINE* 🤰\n`;
+            msg += `👤 ${nombre} | Sem ${semana}\n`;
+            msg += `🚦 *${status}*\n`;
+            
+            if(hasRedFlags) {
+                msg += `\n⚠️ *BANDERAS ROJAS:* ${redFlags.join(', ')}\n`;
+            }
+
+            msg += `\n📊 *WELLNESS:*\n`;
+            msg += `😴 Sueño: ${wellness.sueno || '-'} | ⚡ Energía: ${wellness.energia || '-'}\n`;
+            msg += `🤯 Estrés: ${wellness.estres || '-'}\n`;
+
+            msg += `\n🏋️‍♀️ *CARGA PREVIA:*\n`;
+            msg += `Intensidad: ${load.rpe || '-'}\n`;
+            msg += `Recuperación: ${load.recu || '-'}\n`;
+
+            msg += `\n🩺 *KINE & SUELO PÉLVICO:*\n`;
+            msg += `💦 Escapes: ${kine.pee || 'No'}\n`;
+            msg += `⚖️ Pesadez: ${kine.pesadez || 'No'}\n`;
+            msg += `💥 Dolor (EVA): ${dolor}/10\n`;
+
+            if(notas) msg += `\n📝 *NOTA:* ${notas}`;
+
+            let url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+            if (professionalPhone) url += `&phone=${professionalPhone}`;
+            
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
