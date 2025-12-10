@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario Embarazo Activo - All u moves</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Montserrat para el logo -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { 
+            font-family: 'Quicksand', sans-serif; 
+            background-color: #f3e8ff; /* Fondo Lavanda muy suave */
+            color: #4c1d95; /* Texto Violeta oscuro */
+            padding-bottom: 100px;
+        }
+
+        /* TIPOGRAFÍA DE MARCA */
+        .brand-font { font-family: 'Montserrat', sans-serif; }
+
+        /* Colores del Tema */
+        .bg-primary { background-color: #8b5cf6; } /* Violeta vibrante */
+        .text-primary { color: #7c3aed; }
+        .border-primary { border-color: #a78bfa; }
+        
+        .card { 
+            background: white; 
+            padding: 24px; 
+            border-radius: 20px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.1); 
+            border: 1px solid #e9d5ff;
+        }
+
+        /* Botones de Selección SÍ/NO */
+        .btn-select {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 8px 16px;
+            border: 1px solid #ddd6fe;
+            border-radius: 10px;
+            font-weight: 600;
+            color: #8b5cf6;
+            background: #fbf8ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 60px;
+        }
+        
+        /* Estado Activo (SÍ - Alerta suave) */
+        .btn-select.yes.active { 
+            background-color: #c084fc; /* Violeta medio */
+            color: white; 
+            border-color: #c084fc;
+            box-shadow: 0 4px 10px rgba(192, 132, 252, 0.4);
+        }
+        
+        /* Estado Activo (NO - Verde suave) */
+        .btn-select.no.active { 
+            background-color: #34d399; /* Emerald */
+            color: white; 
+            border-color: #34d399;
+            box-shadow: 0 4px 10px rgba(52, 211, 153, 0.3);
+        }
+
+        /* Cajas de Mensaje Positivo */
+        .feedback-box {
+            display: none;
+            margin-top: 10px;
+            padding: 12px 16px;
+            background-color: #f3e8ff;
+            border-left: 4px solid #a855f7;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #581c87;
+            animation: fadeIn 0.5s ease;
+        }
+        .feedback-box.visible { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Inputs bonitos */
+        input[type="text"], input[type="number"], input[type="date"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #ddd6fe;
+            background-color: #faf5ff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: #8b5cf6;
+            background-color: white;
+            ring: 2px solid #ddd6fe;
+        }
+
+        /* Estilos Impresión / PDF */
+        @media print {
+            body { background: white; padding: 0; color: black; font-family: sans-serif; }
+            .no-print, .header-bar, button:not(.btn-select) { display: none !important; }
+            .card { box-shadow: none; border: none; margin-bottom: 20px; padding: 0; border-bottom: 1px solid #ddd; page-break-inside: avoid; }
+            .btn-select { border: 1px solid #999 !important; color: #666 !important; background: white !important; height: auto; padding: 4px 10px !important; }
+            .btn-select.active { border: 2px solid black !important; color: black !important; background: #eee !important; font-weight: bold; }
+            .feedback-box { display: none !important; } /* Ocultar feedback en PDF */
+            input, textarea, select { border: none; border-bottom: 1px solid black; background: transparent; padding: 0; margin-bottom: 5px; }
+            /* Mostrar logo en negro */
+            .logo-print { display: block !important; color: black !important; text-align: right; font-size: 14pt; margin-bottom: 20px; }
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Header -->
+    <div class="bg-primary text-white p-4 sticky top-0 z-50 shadow-lg header-bar no-print">
+        <div class="max-w-xl mx-auto flex justify-between items-center">
+            <h1 class="font-bold text-lg flex items-center gap-2">
+                <i class="fas fa-baby"></i> Cuestionario Embarazo
+            </h1>
+            <div class="brand-font font-bold text-xl tracking-wide">All u moves</div>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="max-w-xl mx-auto p-4 printable-area">
+        
+        <!-- Logo Solo Impresión -->
+        <div class="hidden logo-print brand-font font-bold">All u moves</div>
+        <div class="hidden print:block text-center mb-6 border-b-2 border-black pb-2">
+            <h2 class="text-xl font-bold uppercase">Cuestionario CSEP Embarazo Activo</h2>
+        </div>
+
+        <!-- Intro -->
+        <div class="card text-center no-print">
+            <p class="text-primary font-medium mb-2">¡Felicidades por tu embarazo!</p>
+            <p class="text-slate-600 text-sm">
+                Este formulario nos ayudará a asegurar que tu actividad física sea segura y beneficiosa para ti y tu bebé.
+            </p>
+        </div>
+
+        <!-- 1. DATOS PERSONALES -->
+        <div class="card">
+            <h2 class="font-bold text-lg text-primary border-b border-purple-100 pb-2 mb-4">1. Tus Datos</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nombre</label>
+                    <input type="text" id="nombre" placeholder="Nombre completo">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Edad</label>
+                    <input type="number" id="edad" placeholder="Años">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Fecha Probable Parto</label>
+                    <input type="date" id="fpp">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Semanas Gestación</label>
+                    <input type="number" id="semanas" placeholder="Ej. 24">
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. HISTORIAL MÉDICO (Página 1 PDF) -->
+        <div class="card">
+            <h2 class="font-bold text-lg text-primary border-b border-purple-100 pb-2 mb-2">2. Salud en este Embarazo</h2>
+            <p class="text-xs text-slate-500 mb-4 bg-purple-50 p-2 rounded">
+                Por favor responde SÍ o NO según tu conocimiento actual.
+            </p>
+            
+            <div id="medical-questions" class="space-y-4">
+                <!-- Se generan con JS -->
+            </div>
+            
+            <!-- Preguntas Embarazos Previos -->
+            <h3 class="font-bold text-md text-slate-700 mt-6 mb-3 border-t pt-4">En embarazos anteriores:</h3>
+            <div id="prev-questions" class="space-y-4">
+                 <!-- Se generan con JS -->
+            </div>
+
+            <!-- Otras condiciones -->
+            <div class="mt-6 pt-4 border-t border-purple-100">
+                <label class="block text-sm font-bold text-slate-700 mb-2">¿Alguna otra condición que pueda afectar tu actividad física?</label>
+                <div class="flex gap-2 mb-2">
+                    <button onclick="toggleOther('yes', this)" class="btn-select">SÍ</button>
+                    <button onclick="toggleOther('no', this)" class="btn-select">NO</button>
+                </div>
+                <textarea id="other-condition" class="hidden w-full text-sm mt-2" rows="2" placeholder="Cuéntame un poco más..."></textarea>
+            </div>
+        </div>
+
+        <!-- 3. NIVEL DE ACTIVIDAD (Página 2 PDF) -->
+        <div class="card">
+            <h2 class="font-bold text-lg text-primary border-b border-purple-100 pb-2 mb-4">3. Tu Historia de Movimiento</h2>
+            
+            <!-- Antes del Embarazo -->
+            <div class="mb-6">
+                <h4 class="font-bold text-sm text-slate-600 mb-2 bg-purple-50 p-1 rounded inline-block">Antes del embarazo (6 meses previos)</h4>
+                <div class="grid grid-cols-2 gap-3 mb-2">
+                    <div>
+                        <label class="text-xs text-slate-500 block">Frecuencia (días/sem)</label>
+                        <select id="act-prev-freq" class="text-sm">
+                            <option value="-">-</option>
+                            <option value="0">0</option>
+                            <option value="1-2">1-2</option>
+                            <option value="3-4">3-4</option>
+                            <option value="5-7">5-7</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500 block">Intensidad</label>
+                        <select id="act-prev-int" class="text-sm">
+                            <option value="-">-</option>
+                            <option value="Ligera">Ligera (Sin sudar)</option>
+                            <option value="Moderada">Moderada (Hablar cuesta un poco)</option>
+                            <option value="Vigorosa">Vigorosa (Cuesta hablar)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Durante el Embarazo -->
+            <div class="mb-6">
+                <h4 class="font-bold text-sm text-slate-600 mb-2 bg-purple-50 p-1 rounded inline-block">Durante este embarazo</h4>
+                <div class="grid grid-cols-2 gap-3 mb-2">
+                    <div>
+                        <label class="text-xs text-slate-500 block">Frecuencia (días/sem)</label>
+                        <select id="act-curr-freq" class="text-sm">
+                            <option value="-">-</option>
+                            <option value="0">0</option>
+                            <option value="1-2">1-2</option>
+                            <option value="3-4">3-4</option>
+                            <option value="5-7">5-7</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500 block">Intensidad</label>
+                        <select id="act-curr-int" class="text-sm">
+                            <option value="-">-</option>
+                            <option value="Ligera">Ligera</option>
+                            <option value="Moderada">Moderada</option>
+                            <option value="Vigorosa">Vigorosa</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metas -->
+            <div>
+                <h4 class="font-bold text-sm text-slate-600 mb-2 bg-purple-50 p-1 rounded inline-block">Tu Meta</h4>
+                <div class="grid grid-cols-2 gap-3 mb-2">
+                    <div>
+                        <label class="text-xs text-slate-500 block">Frecuencia deseada</label>
+                        <select id="act-goal-freq" class="text-sm">
+                            <option value="-">-</option>
+                            <option value="1-2">1-2 días</option>
+                            <option value="3-4">3-4 días</option>
+                            <option value="5-7">5-7 días</option>
+                        </select>
+                    </div>
+                     <div>
+                        <label class="text-xs text-slate-500 block">Tipo Actividad</label>
+                        <input type="text" id="act-type" placeholder="Ej. Yoga, Caminar..." class="text-sm h-[46px]">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. PREOCUPACIONES -->
+        <div class="card">
+             <h2 class="font-bold text-lg text-primary border-b border-purple-100 pb-2 mb-4">4. ¿Algo más?</h2>
+             <label class="block text-sm text-slate-700 mb-2">¿Existe alguna otra razón que te preocupe relativa al ejercicio?</label>
+             <textarea id="concerns" rows="3" placeholder="Escribe aquí tus dudas..."></textarea>
+        </div>
+
+        <!-- BOTONES FINALES -->
+        <div class="space-y-3 no-print pb-8">
+            <button onclick="calculateResults()" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg text-lg mb-4 transition transform active:scale-95">
+                VER RESULTADO
+            </button>
+
+            <!-- Área de Resultados (Oculta) -->
+            <div id="result-area" class="hidden">
+                <div id="result-card" class="bg-white p-6 rounded-xl border-2 mb-4 text-center"></div>
+                
+                <button onclick="saveAsPDF()" class="w-full bg-slate-600 hover:bg-slate-700 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center text-lg transition mb-3">
+                    <i class="fas fa-file-pdf mr-3"></i> Guardar PDF
+                </button>
+
+                <button onclick="sendWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center text-lg transition transform hover:-translate-y-1">
+                    <i class="fab fa-whatsapp text-2xl mr-3"></i> Enviar a All u moves
+                </button>
+            </div>
+        </div>
+        
+        <!-- Footer Print -->
+        <div class="hidden print:block text-center text-xs mt-8 border-t pt-2">
+            <p>Generado vía All u moves Digital Tool. Fecha: <span id="print-date"></span></p>
+        </div>
+
+    </div>
+
+    <script>
+        // CONFIGURACIÓN
+        const professionalPhone = ""; 
+        document.getElementById('print-date').innerText = new Date().toLocaleDateString();
+
+        // DATOS MÉDICOS (PDF CSEP GAQ-P)
+        const medicalQs = [
+            { id: '1a', text: 'Enf. Cardiovasculares o Respiratorias (Ej. bronquitis crónica)', msg: 'Perfecto, adaptaremos la intensidad para cuidar tu respiración y corazón.' },
+            { id: '1b', text: 'Epilepsia no controlada', msg: 'Importante. Necesitaremos el pase de tu neurólogo para seguridad total.' },
+            { id: '1c', text: 'Diabetes Tipo 1 no controlada', msg: 'Ok. El ejercicio ayuda al azúcar, pero requerimos pautas de tu endocrino.' },
+            { id: '1d', text: 'Patología tiroidea no controlada', msg: 'Anotado. Monitorearemos la fatiga y temperatura.' },
+            { id: '1e', text: 'Trastorno alimentario o malnutrición', msg: 'Gracias por la confianza. Priorizaremos la energía y nutrición.' },
+            { id: '1f', text: 'Embarazo gemelar (>28 sem) o triple', msg: '¡Qué valiente! A partir de la semana 28 bajaremos mucho el impacto.' },
+            { id: '1g', text: 'Anemia (fatiga/mareos)', msg: 'Entendido. Haremos sesiones suaves para no agotarte.' },
+            { id: '1h', text: 'Presión alta / Preeclampsia', msg: 'Vital saberlo. Evitaremos ejercicios isométricos y cargas altas.' },
+            { id: '1i', text: 'Crecimiento fetal lento', msg: 'Anotado. Consultaremos con tu médico el nivel de actividad ideal.' },
+            { id: '1j', text: 'Sangrado inexplicado / Ruptura membranas', msg: 'Atención. Necesitamos autorización médica antes de cualquier ejercicio.' },
+            { id: '1k', text: 'Placenta previa', msg: 'Ok. Evitaremos impactos y ciertos movimientos pélvicos.' },
+            { id: '1l', text: 'Debilidad de cérvix', msg: 'Anotado. Cuidaremos mucho la presión intra-abdominal.' },
+            { id: '1m', text: 'Cerclaje / Puntos en cérvix', msg: 'Importante. Adaptaremos todo para proteger el cerclaje.' }
+        ];
+
+        const prevQs = [
+            { id: '2a', text: 'Abortos recurrentes (2+ veces)', msg: 'Comprendido. Iremos con mucha cautela y seguridad.' },
+            { id: '2b', text: 'Parto prematuro (<37 sem)', msg: 'Ok. Estaremos atentas a cualquier señal de contracción.' }
+        ];
+
+        let answers = {};
+        let otherCondition = false;
+
+        // INICIALIZAR
+        function init() {
+            renderQuestions(medicalQs, 'medical-questions');
+            renderQuestions(prevQs, 'prev-questions');
+        }
+
+        function renderQuestions(list, containerId) {
+            const container = document.getElementById(containerId);
+            list.forEach(q => {
+                const div = document.createElement('div');
+                div.className = "border-b border-purple-50 pb-3 last:border-0";
+                div.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="text-sm text-slate-700 w-3/4 pr-2 pt-1 font-medium">${q.text}</span>
+                        <div class="flex gap-2 shrink-0" id="q-${q.id}">
+                            <button onclick="setAnswer('${q.id}', 'yes', this)" class="btn-select yes text-xs">SÍ</button>
+                            <button onclick="setAnswer('${q.id}', 'no', this)" class="btn-select no text-xs">NO</button>
+                        </div>
+                    </div>
+                    <div id="fb-${q.id}" class="feedback-box">
+                        <i class="fas fa-heart text-purple-500 mr-1"></i> ${q.msg}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // LÓGICA
+        function setAnswer(id, val, btn) {
+            answers[id] = val;
+            const parent = document.getElementById(`q-${id}`);
+            parent.querySelectorAll('.btn-select').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Mostrar Mensaje Positivo
+            const fbBox = document.getElementById(`fb-${id}`);
+            if (val === 'yes') fbBox.classList.add('visible');
+            else fbBox.classList.remove('visible');
+        }
+
+        function toggleOther(val, btn) {
+            const area = document.getElementById('other-condition');
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.btn-select').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            if(val === 'yes') {
+                area.classList.remove('hidden');
+                otherCondition = true;
+            } else {
+                area.classList.add('hidden');
+                otherCondition = false;
+            }
+        }
+
+        function calculateResults() {
+            const nombre = document.getElementById('nombre').value;
+            if(!nombre) { alert("Por favor escribe tu nombre arriba."); window.scrollTo(0,0); return; }
+
+            const hasYes = Object.values(answers).some(val => val === 'yes');
+            const card = document.getElementById('result-card');
+            const area = document.getElementById('result-area');
+
+            area.classList.remove('hidden');
+            
+            if (hasYes || otherCondition) {
+                card.className = "bg-purple-50 p-6 rounded-xl border-2 border-purple-200 mb-4 text-center";
+                card.innerHTML = `
+                    <i class="fas fa-user-md text-4xl text-purple-600 mb-2"></i>
+                    <h3 class="text-xl font-bold text-purple-800 brand-font">REQUIERE APROBACIÓN MÉDICA</h3>
+                    <p class="text-purple-700 text-sm mt-2">
+                        Has respondido "SÍ" a una o más condiciones.
+                        <br>
+                        <strong>¡No te preocupes!</strong> Significa que contactaremos a tu médico para entrenar de la forma más segura para ti.
+                    </p>
+                `;
+            } else {
+                card.className = "bg-green-50 p-6 rounded-xl border-2 border-green-200 mb-4 text-center";
+                card.innerHTML = `
+                    <i class="fas fa-check-circle text-4xl text-green-500 mb-2"></i>
+                    <h3 class="text-xl font-bold text-green-700 brand-font">APTA PARA ACTIVIDAD FÍSICA</h3>
+                    <p class="text-green-800 text-sm mt-2">
+                        ¡Genial! No presentas contraindicaciones aparentes.
+                        <br>Podemos comenzar con el plan de embarazo activo.
+                    </p>
+                `;
+            }
+            
+            area.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function saveAsPDF() {
+            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                alert("Para iPhone: Toca 'Compartir' > 'Guardar en Archivos'.");
+            }
+            window.print();
+        }
+
+        function sendWhatsApp() {
+            const nombre = document.getElementById('nombre').value;
+            const semanas = document.getElementById('semanas').value;
+            const hasYes = Object.values(answers).some(val => val === 'yes');
+            const otherText = document.getElementById('other-condition').value;
+            
+            // Construir lista de riesgos
+            let riskList = "";
+            if (hasYes) {
+                riskList += "\n⚠️ *Condiciones Reportadas:*";
+                for (const [key, val] of Object.entries(answers)) {
+                    if (val === 'yes') {
+                        // Buscar texto de pregunta en arrays
+                        let q = medicalQs.find(x => x.id === key) || prevQs.find(x => x.id === key);
+                        if (q) riskList += `\n- ${q.text}`;
+                    }
+                }
+            }
+            if (otherCondition && otherText) {
+                riskList += `\n- Otra: ${otherText}`;
+            }
+            if (!hasYes && !otherCondition) riskList = "\n✅ Sin condiciones de riesgo reportadas.";
+
+            // Actividad
+            const prev = document.getElementById('act-prev-freq').value;
+            const curr = document.getElementById('act-curr-freq').value;
+            const goal = document.getElementById('act-goal-freq').value;
+
+            let msg = `🤰 *CUESTIONARIO EMBARAZO (GAQ-P)* 🤰\n`;
+            msg += `👤 *Alumna:* ${nombre}\n`;
+            msg += `📅 *Gestación:* ${semanas} semanas\n`;
+            msg += `----------------------------\n`;
+            msg += `🚦 *RESULTADO:* ${ (hasYes || otherCondition) ? "🟣 REQUIERE PASE MÉDICO" : "🟢 APTO" }\n`;
+            
+            msg += `${riskList}\n`;
+
+            msg += `\n📊 *HISTORIAL:*`;
+            msg += `\n• Pre-Embarazo: ${prev} días/sem`;
+            msg += `\n• Actual: ${curr} días/sem`;
+            msg += `\n• Meta: ${goal} días/sem`;
+
+            const concern = document.getElementById('concerns').value;
+            if(concern) msg += `\n\n📝 *Duda:* ${concern}`;
+
+            let url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+            if (professionalPhone) url += `&phone=${professionalPhone}`;
+            
+            window.open(url, '_blank');
+        }
+
+        init();
+    </script>
+</body>
+</html>
