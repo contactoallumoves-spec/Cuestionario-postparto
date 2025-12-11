@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación Clínica Hombro - All u moves</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Roboto', sans-serif; background-color: #f8fafc; color: #334155; padding-bottom: 120px; }
+        .brand-font { font-family: 'Montserrat', sans-serif; }
+        
+        /* Colores Marca All u moves */
+        .bg-brand { background-color: #0f172a; }
+        .text-brand { color: #0f172a; }
+        
+        /* Botones Toggle (Rápida selección) */
+        .toggle-btn {
+            padding: 8px 4px; border: 1px solid #e2e8f0; border-radius: 6px;
+            background: white; color: #64748b; cursor: pointer; transition: all 0.1s;
+            font-size: 0.75rem; font-weight: 600; flex: 1; text-align: center;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .toggle-btn:hover { background-color: #f1f5f9; }
+        
+        .toggle-btn.active-red { background-color: #ef4444; color: white; border-color: #ef4444; }
+        .toggle-btn.active-green { background-color: #10b981; color: white; border-color: #10b981; }
+        .toggle-btn.active-blue { background-color: #3b82f6; color: white; border-color: #3b82f6; }
+        .toggle-btn.active-neutral { background-color: #64748b; color: white; border-color: #64748b; }
+
+        /* Botones de Selección Múltiple (Tags) */
+        .tag-btn {
+            padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 20px;
+            background: white; color: #475569; font-size: 0.75rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tag-btn.active { background-color: #0f172a; color: white; border-color: #0f172a; }
+
+        /* Inputs Range para cuestionarios */
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+            background: #3b82f6; cursor: pointer; margin-top: -6px;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: #cbd5e1; border-radius: 2px;
+        }
+
+        /* Acordeones */
+        details { 
+            background: white; border-radius: 12px; border: 1px solid #e2e8f0; 
+            margin-bottom: 12px; overflow: hidden;
+        }
+        details > summary { 
+            padding: 14px; list-style: none; cursor: pointer; background: white; 
+            font-weight: 600; color: #1e293b; display: flex; justify-content: space-between; align-items: center;
+        }
+        details > summary:hover { background-color: #f8fafc; }
+        details[open] > summary { border-bottom: 1px solid #f1f5f9; background-color: #f8fafc; color: #3b82f6; }
+        details > div { padding: 16px; }
+
+        /* Impresión */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; padding: 0; color: black; font-size: 10pt; }
+            details { break-inside: avoid; border: none; margin-bottom: 15px; }
+            details > summary { display: none; } 
+            details > div { display: block !important; padding: 0; }
+            details { display: block !important; }
+            input, select, textarea { border: none; border-bottom: 1px solid #ccc; background: transparent; padding: 0; }
+            .tag-btn { border: 1px solid #999; color: #666; }
+            .tag-btn.active { border: 2px solid black; color: black; background: #eee; font-weight: bold; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Fijo -->
+    <div class="bg-brand text-white p-3 sticky top-0 z-50 shadow-lg no-print flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-bone text-2xl text-blue-400"></i>
+            <div>
+                <h1 class="font-bold text-lg brand-font leading-tight">Evaluación Hombro Pro</h1>
+                <p class="text-[10px] text-slate-400 font-mono">Clinica + SPADI + QuickDASH</p>
+            </div>
+        </div>
+        <span class="brand-font font-bold text-lg tracking-wider">All u moves</span>
+    </div>
+
+    <div class="max-w-4xl mx-auto p-4 printable-area">
+
+        <!-- 1. IDENTIFICACIÓN -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 mb-4">
+            <div class="flex justify-between items-center mb-3 border-b pb-2">
+                <h2 class="brand-font font-bold text-base text-slate-800">1. Identificación y Metas</h2>
+                <div class="flex gap-2 items-center">
+                    <label class="text-xs font-bold text-slate-500">Consentimiento:</label>
+                    <input type="checkbox" checked class="accent-blue-600 w-4 h-4">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                <input type="text" id="nombre" placeholder="Nombre Completo" class="p-2 border rounded w-full bg-slate-50">
+                <input type="text" id="fecha" class="p-2 border rounded w-full bg-slate-50">
+                <input type="text" id="deporte" placeholder="Deporte / Trabajo / Carga Semanal" class="p-2 border rounded w-full md:col-span-2">
+            </div>
+            <div class="mb-2">
+                <label class="text-xs font-bold text-slate-500 uppercase">3 Gestos Limitados (0-10)</label>
+                <div class="grid grid-cols-3 gap-2 mt-1">
+                    <input type="text" id="gesto1" placeholder="1. Ej: Peinarse" class="p-2 border rounded text-xs">
+                    <input type="text" id="gesto2" placeholder="2. Ej: Dormir" class="p-2 border rounded text-xs">
+                    <input type="text" id="gesto3" placeholder="3. Ej: Lanzar" class="p-2 border rounded text-xs">
+                </div>
+            </div>
+            <div>
+                <input type="text" id="metas" placeholder="Metas SMART (Ej: Volver a nadar 1km en 4 semanas)" class="p-2 border rounded w-full text-sm">
+            </div>
+        </div>
+
+        <!-- 2. SEGURIDAD (BANDERAS ROJAS) -->
+        <details class="group border-red-200" id="sec-redflags">
+            <summary class="text-red-700">
+                <span><i class="fas fa-shield-alt mr-2"></i> 2. Banderas Rojas (Tamizaje)</span>
+                <i class="fas fa-chevron-down text-slate-400"></i>
+            </summary>
+            <div>
+                <div class="grid md:grid-cols-2 gap-3">
+                    <div class="flex items-center justify-between p-2 bg-red-50 rounded border border-red-100">
+                        <span class="text-xs font-bold text-red-900">Trauma Agudo / Deformidad</span>
+                        <div class="flex gap-1 w-20" id="rf-trauma">
+                            <button onclick="toggleBtn(this, 'red', 'rf-trauma')" class="toggle-btn">SÍ</button>
+                            <button onclick="toggleBtn(this, 'green', 'rf-trauma')" class="toggle-btn active-green">NO</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-red-50 rounded border border-red-100">
+                        <span class="text-xs font-bold text-red-900">Dolor Nocturno NO mec.</span>
+                        <div class="flex gap-1 w-20" id="rf-noc">
+                            <button onclick="toggleBtn(this, 'red', 'rf-noc')" class="toggle-btn">SÍ</button>
+                            <button onclick="toggleBtn(this, 'green', 'rf-noc')" class="toggle-btn active-green">NO</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-red-50 rounded border border-red-100">
+                        <span class="text-xs font-bold text-red-900">Fiebre / Pérdida peso</span>
+                        <div class="flex gap-1 w-20" id="rf-syst">
+                            <button onclick="toggleBtn(this, 'red', 'rf-syst')" class="toggle-btn">SÍ</button>
+                            <button onclick="toggleBtn(this, 'green', 'rf-syst')" class="toggle-btn active-green">NO</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-red-50 rounded border border-red-100">
+                        <span class="text-xs font-bold text-red-900">Déficits Neuro Progres.</span>
+                        <div class="flex gap-1 w-20" id="rf-neuro">
+                            <button onclick="toggleBtn(this, 'red', 'rf-neuro')" class="toggle-btn">SÍ</button>
+                            <button onclick="toggleBtn(this, 'green', 'rf-neuro')" class="toggle-btn active-green">NO</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <!-- 3. DOLOR E IRRITABILIDAD -->
+        <details class="group">
+            <summary>
+                <span><i class="fas fa-chart-line mr-2"></i> 3. Perfil de Dolor</span>
+                <i class="fas fa-chevron-down text-slate-400"></i>
+            </summary>
+            <div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Irritabilidad</h4>
+                        <div class="flex gap-2 mb-2">
+                             <input type="number" id="eva-act" placeholder="Actual" class="p-1 border rounded w-1/3 text-sm text-center">
+                             <input type="number" id="eva-max" placeholder="Máx" class="p-1 border rounded w-1/3 text-sm text-center">
+                             <input type="number" id="eva-noc" placeholder="Noche" class="p-1 border rounded w-1/3 text-sm text-center">
+                        </div>
+                        <div class="flex gap-1" id="irritability">
+                            <button onclick="selectSingle(this, 'irritability', 'green')" class="toggle-btn py-2">BAJA</button>
+                            <button onclick="selectSingle(this, 'irritability', 'blue')" class="toggle-btn py-2">MEDIA</button>
+                            <button onclick="selectSingle(this, 'irritability', 'red')" class="toggle-btn py-2">ALTA</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Mecanismo</h4>
+                        <div class="flex flex-col gap-1" id="pain-mech">
+                            <button onclick="selectSingle(this, 'pain-mech', 'blue')" class="toggle-btn justify-start px-3">
+                                🔧 Nociceptivo (Mecánico)
+                            </button>
+                            <button onclick="selectSingle(this, 'pain-mech', 'blue')" class="toggle-btn justify-start px-3">
+                                ⚡ Neuropático (Eléctrico)
+                            </button>
+                            <button onclick="selectSingle(this, 'pain-mech', 'blue')" class="toggle-btn justify-start px-3">
+                                🧠 Nociplástico (Difuso)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <!-- 4. AGRAVANTES Y ATENUANTES -->
+        <details class="group">
+            <summary>
+                <span><i class="fas fa-bolt mr-2"></i> 4. Agravantes y Atenuantes</span>
+                <i class="fas fa-chevron-down text-slate-400"></i>
+            </summary>
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase mb-2 block">¿Qué empeora el dolor?</label>
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <button onclick="toggleTag(this)" class="tag-btn">Elevación Frontal</button>
+                    <button onclick="toggleTag(this)" class="tag-btn">Elevación Lateral</button>
+                    <button onclick="toggleTag(this)" class="tag-btn">Rotación Externa</button>
+                    <button onclick="toggleTag(this)" class="tag-btn">Mano espalda</button>
+                    <button onclick="toggleTag(this)" class="tag-btn">Cizalla/Compresión</button>
+                    <button onclick="toggleTag(this)" class="tag-btn">Dormir sobre hombro</button>
+                    <button onclick="toggleTag(this)" class="tag-btn">Carga Rápida</button>
+                    <button onclick="toggleTag(this)" class="tag-btn">Fin de Rango</button>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="agg-top3" placeholder="Top 3 Agravantes..." class="p-2 border rounded text-sm w-full">
+                    <input type="text" id="ease-top3" placeholder="Top 3 Atenuantes..." class="p-2 border rounded text-sm w-full">
+                </div>
+            </div>
+        </details>
+
+        <!-- 5. EXAMEN FÍSICO -->
+        <details class="group" open>
+            <summary>
+                <span><i class="fas fa-user-md mr-2"></i> 5. Examen Físico</span>
+                <i class="fas fa-chevron-down text-slate-400"></i>
+            </summary>
+            <div>
+                <div class="mb-3 pb-3 border-b border-slate-100">
+                    <h3 class="font-bold text-xs text-slate-700 mb-2 bg-slate-50 p-1 rounded">A. Control Escapular</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex justify-between items-center text-xs">
+                            <span>Discinesia / Asimetría</span>
+                            <div class="flex gap-1 w-20" id="obs-disc">
+                                <button onclick="toggleBtn(this, 'red', 'obs-disc')" class="toggle-btn">SÍ</button>
+                                <button onclick="toggleBtn(this, 'green', 'obs-disc')" class="toggle-btn active-green">NO</button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span>Borde Medial Prominente</span>
+                            <div class="flex gap-1 w-20" id="obs-medial">
+                                <button onclick="toggleBtn(this, 'red', 'obs-medial')" class="toggle-btn">SÍ</button>
+                                <button onclick="toggleBtn(this, 'green', 'obs-medial')" class="toggle-btn active-green">NO</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3 pb-3 border-b border-slate-100">
+                    <h3 class="font-bold text-xs text-slate-700 mb-2 bg-slate-50 p-1 rounded">B. Movimiento Activo</h3>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold">Flexión / Elevación</span>
+                        <div class="flex gap-1 w-40" id="mov-flex">
+                            <button onclick="toggleBtn(this, 'green', 'mov-flex')" class="toggle-btn active-green">Bien</button>
+                            <button onclick="toggleBtn(this, 'red', 'mov-flex')" class="toggle-btn">Dolor</button>
+                            <button onclick="toggleBtn(this, 'blue', 'mov-flex')" class="toggle-btn">Limitado</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mb-2 pl-2">
+                        <span class="text-xs text-slate-500">↳ Arco Doloroso (60-120°)</span>
+                        <div class="flex gap-1 w-20" id="test-arc">
+                            <button onclick="toggleBtn(this, 'red', 'test-arc')" class="toggle-btn">SÍ</button>
+                            <button onclick="toggleBtn(this, 'green', 'test-arc')" class="toggle-btn active-green">NO</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mb-2 pl-2 bg-blue-50 py-1 rounded">
+                        <span class="text-xs text-blue-800 font-bold">↳ SAT (Asistencia Escapular) ¿Mejora?</span>
+                        <div class="flex gap-1 w-20" id="mod-sat">
+                            <button onclick="toggleBtn(this, 'green', 'mod-sat')" class="toggle-btn">SÍ</button>
+                            <button onclick="toggleBtn(this, 'red', 'mod-sat')" class="toggle-btn active-neutral">NO</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs">Mano a Espalda (RI Funcional)</span>
+                        <div class="flex gap-1 w-32" id="mov-ri">
+                            <button onclick="toggleBtn(this, 'green', 'mov-ri')" class="toggle-btn active-green">Normal</button>
+                            <button onclick="toggleBtn(this, 'red', 'mov-ri')" class="toggle-btn">Dolor/Lim</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <h3 class="font-bold text-xs text-slate-700 mb-2 bg-slate-50 p-1 rounded">C. Tests Fuerza & Especiales</h3>
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs">Fuerza Rot. Externa</span>
+                            <div class="flex gap-1 w-24" id="f-re">
+                                <button onclick="toggleBtn(this, 'green', 'f-re')" class="toggle-btn active-green">Fuerte</button>
+                                <button onclick="toggleBtn(this, 'red', 'f-re')" class="toggle-btn">Déb/Dol</button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs">Lata Llena (Supra)</span>
+                            <div class="flex gap-1 w-24" id="test-jobe">
+                                <button onclick="toggleBtn(this, 'green', 'test-jobe')" class="toggle-btn active-green">Fuerte</button>
+                                <button onclick="toggleBtn(this, 'red', 'test-jobe')" class="toggle-btn">Déb/Dol</button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-800">Drop Arm (Caída)</span>
+                            <div class="flex gap-1 w-24" id="test-drop">
+                                <button onclick="toggleBtn(this, 'red', 'test-drop')" class="toggle-btn">POS</button>
+                                <button onclick="toggleBtn(this, 'green', 'test-drop')" class="toggle-btn active-green">NEG</button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs">Aprehensión (Inestab.)</span>
+                            <div class="flex gap-1 w-24" id="test-app">
+                                <button onclick="toggleBtn(this, 'red', 'test-app')" class="toggle-btn">POS</button>
+                                <button onclick="toggleBtn(this, 'green', 'test-app')" class="toggle-btn active-green">NEG</button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs">Patrón Capsular (Rigidez)</span>
+                            <div class="flex gap-1 w-24" id="pat-cap">
+                                <button onclick="toggleBtn(this, 'red', 'pat-cap')" class="toggle-btn">SÍ</button>
+                                <button onclick="toggleBtn(this, 'green', 'pat-cap')" class="toggle-btn active-green">NO</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <!-- 6. CUESTIONARIOS PROMS (NUEVO SPADI + DASH) -->
+        <details class="group bg-blue-50 border-blue-200">
+            <summary class="text-blue-900">
+                <span><i class="fas fa-clipboard-check mr-2"></i> 6. Cuestionarios Funcionales (SPADI / QuickDASH)</span>
+                <i class="fas fa-chevron-down text-blue-400"></i>
+            </summary>
+            <div>
+                <!-- SPADI -->
+                <div class="mb-6 border-b border-blue-200 pb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-sm text-blue-800">SPADI (Shoulder Pain and Disability)</h3>
+                        <span id="spadi-score" class="font-bold text-sm bg-white px-2 py-1 rounded shadow">--%</span>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mb-3">Escala 0 (Nada) a 10 (Máximo).</p>
+                    
+                    <div class="space-y-2 text-xs">
+                        <div class="grid grid-cols-12 gap-2 items-center">
+                            <span class="col-span-4">Dolor Reposo</span>
+                            <input type="range" min="0" max="10" value="0" class="col-span-7 spadi-item" oninput="updateSpadi()">
+                            <span class="col-span-1 text-center font-bold">0</span>
+                        </div>
+                        <div class="grid grid-cols-12 gap-2 items-center">
+                            <span class="col-span-4">Dolor Peso/Alto</span>
+                            <input type="range" min="0" max="10" value="0" class="col-span-7 spadi-item" oninput="updateSpadi()">
+                            <span class="col-span-1 text-center font-bold">0</span>
+                        </div>
+                        <div class="grid grid-cols-12 gap-2 items-center">
+                            <span class="col-span-4">Lavarse Espalda</span>
+                            <input type="range" min="0" max="10" value="0" class="col-span-7 spadi-item" oninput="updateSpadi()">
+                            <span class="col-span-1 text-center font-bold">0</span>
+                        </div>
+                        <div class="grid grid-cols-12 gap-2 items-center">
+                            <span class="col-span-4">Ponerse Camisa</span>
+                            <input type="range" min="0" max="10" value="0" class="col-span-7 spadi-item" oninput="updateSpadi()">
+                            <span class="col-span-1 text-center font-bold">0</span>
+                        </div>
+                        <div class="grid grid-cols-12 gap-2 items-center">
+                            <span class="col-span-4">Cargar 5kg</span>
+                            <input type="range" min="0" max="10" value="0" class="col-span-7 spadi-item" oninput="updateSpadi()">
+                            <span class="col-span-1 text-center font-bold">0</span>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-right">
+                        <button onclick="calculateSpadiFull()" class="text-xs text-blue-600 underline">Calcular SPADI Completo (13 ítems simplificados)</button>
+                    </div>
+                </div>
+
+                <!-- QuickDASH -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-sm text-blue-800">QuickDASH (11 Ítems)</h3>
+                        <span id="dash-score-display" class="font-bold text-sm bg-white px-2 py-1 rounded shadow">--%</span>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mb-3">1 (Sin dificultad) a 5 (Imposible/Extremo).</p>
+                    
+                    <div class="space-y-2 text-xs" id="dash-container">
+                        <!-- Generado por JS para ahorrar espacio -->
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <!-- 7. EXTRAS -->
+        <details class="group">
+            <summary>
+                <span><i class="fas fa-search-plus mr-2"></i> 7. Extras (Cervical / Codo)</span>
+                <i class="fas fa-chevron-down text-slate-400"></i>
+            </summary>
+            <div>
+                 <div class="grid md:grid-cols-2 gap-4">
+                     <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-600">Screening Cervical (Reproduce)</span>
+                            <div class="flex gap-1 w-20" id="scr-cerv">
+                                <button onclick="toggleBtn(this, 'red', 'scr-cerv')" class="toggle-btn">SÍ</button>
+                                <button onclick="toggleBtn(this, 'green', 'scr-cerv')" class="toggle-btn active-green">NO</button>
+                            </div>
+                        </div>
+                     </div>
+                     <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-600">Codo Lateral (Epicóndilo)</span>
+                            <div class="flex gap-1 w-20" id="scr-elbow">
+                                <button onclick="toggleBtn(this, 'red', 'scr-elbow')" class="toggle-btn">DOLOR</button>
+                                <button onclick="toggleBtn(this, 'green', 'scr-elbow')" class="toggle-btn active-green">OK</button>
+                            </div>
+                        </div>
+                     </div>
+                 </div>
+            </div>
+        </details>
+
+        <!-- LÓGICA & PLAN -->
+        <div class="mt-6 mb-6 no-print">
+            <button onclick="runClinicalLogic()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                <i class="fas fa-magic"></i> CALCULAR PLAN & DIAGNÓSTICO
+            </button>
+            
+            <div id="logic-output" class="hidden mt-4 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r">
+                <h3 class="font-bold text-blue-900 text-sm mb-1">Sugerencia del Sistema:</h3>
+                <div id="logic-text" class="text-sm text-slate-800"></div>
+                <div id="reco-text" class="text-xs text-slate-600 mt-2 italic border-t border-blue-200 pt-2"></div>
+            </div>
+        </div>
+
+        <!-- 8. DIAGNÓSTICO Y PLAN -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6">
+            <h2 class="brand-font font-bold text-lg mb-4 border-b pb-2">8. Diagnóstico y Plan</h2>
+            
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Clasificación Principal</label>
+                <select id="dx-principal" class="w-full p-2 border rounded font-bold text-slate-700 bg-slate-50">
+                    <option value="">-- Seleccionar --</option>
+                    <option value="Dolor Manguito Rotador">Dolor Manguito Rotador (Tendinopatía)</option>
+                    <option value="Desgarro Manguito Rotador">Desgarro Manguito Rotador</option>
+                    <option value="Inestabilidad Glenohumeral">Inestabilidad Glenohumeral</option>
+                    <option value="Capsulitis Adhesiva">Capsulitis Adhesiva</option>
+                    <option value="Dolor Acromioclavicular">Dolor Acromioclavicular</option>
+                    <option value="Cervical Referido">Cervical Referido</option>
+                    <option value="Disfunción Escapular">Disfunción Escapular</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Módulos a realizar (Fase 1)</label>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="toggleTag(this)" class="tag-btn">Educación Dolor</button>
+                    <button onclick="toggleTag(this)" class="tag-btn">Isométricos Rotadores</button>
+                    <button onclick="toggleTag(this)" class="tag-btn">Control Escapular</button>
+                    <button onclick="toggleTag(this)" class="tag-btn">Movilidad Torácica</button>
+                    <button onclick="toggleTag(this)" class="tag-btn">Pendulares</button>
+                    <button onclick="toggleTag(this)" class="tag-btn">Neurodinámica</button>
+                    <button onclick="toggleTag(this)" class="tag-btn">Estabilidad Dinámica</button>
+                    <button onclick="toggleTag(this)" class="tag-btn">Modificación Gesto</button>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tarea Casa</label>
+                <textarea id="homework" class="w-full p-3 border rounded h-20 text-sm" placeholder="Ej. 1. Isométricos pared 3x30s..."></textarea>
+            </div>
+
+             <div class="grid grid-cols-2 gap-4">
+                <input type="text" id="final-scores" class="w-full p-2 border rounded text-sm font-bold text-blue-800 bg-blue-50" readonly placeholder="SPADI: - | DASH: -">
+                <input type="date" id="next-visit" class="w-full p-2 border rounded text-sm">
+            </div>
+        </div>
+
+        <!-- BOTONERA -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 no-print">
+            <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold py-3 rounded-xl shadow flex items-center justify-center gap-2">
+                <i class="fas fa-print"></i> Ficha Clínica
+            </button>
+            <button onclick="openPatientModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow flex items-center justify-center gap-2">
+                <i class="fas fa-user"></i> Copia Paciente
+            </button>
+            <button onclick="sendWhatsApp()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow flex items-center justify-center gap-2">
+                <i class="fab fa-whatsapp text-lg"></i> WhatsApp
+            </button>
+        </div>
+
+    </div>
+
+    <!-- MODAL PACIENTE -->
+    <div id="modal-patient" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 p-4 no-print">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+            <div class="bg-blue-600 p-4 text-white flex justify-between items-center">
+                <h3 class="font-bold brand-font">Resumen Paciente</h3>
+                <button onclick="document.getElementById('modal-patient').classList.add('hidden')" class="hover:text-blue-200"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6">
+                <div id="patient-text" class="bg-slate-50 p-4 rounded text-sm font-mono whitespace-pre-wrap mb-4 h-60 overflow-y-auto border"></div>
+                <button onclick="copyToClipboard()" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl">Copiar Texto</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ESTADO GLOBAL
+        const state = {};
+        let spadiValue = 0;
+        let dashValue = 0;
+        document.getElementById('fecha').value = new Date().toLocaleDateString();
+
+        // 1. INICIALIZAR DASH (11 items)
+        const dashItems = [
+            "Abrir frasco apretado", "Tareas pesadas hogar", "Cargar bolsa compras", 
+            "Lavarse la espalda", "Usar cuchillo comida", "Actividades recreativas", 
+            "Interferencia social (Dolor)", "Limitación trabajo/diario", 
+            "Intensidad dolor brazo", "Hormigueo/Adormecimiento", "Dificultad dormir"
+        ];
+        const dashCont = document.getElementById('dash-container');
+        dashItems.forEach((item, idx) => {
+            dashCont.innerHTML += `
+                <div class="grid grid-cols-12 gap-2 items-center">
+                    <span class="col-span-5 truncate" title="${item}">${item}</span>
+                    <input type="range" min="1" max="5" value="1" class="col-span-6 dash-item" oninput="updateDash(this)">
+                    <span class="col-span-1 text-center font-bold value-label">1</span>
+                </div>
+            `;
+        });
+
+        // 2. TOGGLE LOGIC
+        function toggleBtn(btn, type, id) {
+            const container = document.getElementById(id);
+            container.querySelectorAll('.toggle-btn').forEach(b => {
+                b.classList.remove('active-red', 'active-green', 'active-blue', 'active-neutral');
+            });
+            
+            if(type === 'red') btn.classList.add('active-red');
+            if(type === 'green') btn.classList.add('active-green');
+            if(type === 'blue') btn.classList.add('active-blue');
+            if(type === 'neutral') btn.classList.add('active-neutral');
+
+            let logic = (type === 'red') ? 'pos' : (type === 'blue' ? 'neutral' : 'neg');
+            if(id === 'mod-sat' && type === 'green') logic = 'pos'; 
+
+            state[id] = logic;
+        }
+        function selectSingle(btn, id, type) { toggleBtn(btn, type, id); }
+        function toggleTag(btn) { btn.classList.toggle('active'); }
+
+        // 3. CÁLCULO CUESTIONARIOS
+        function updateSpadi() {
+            const inputs = document.querySelectorAll('.spadi-item');
+            let total = 0;
+            inputs.forEach(i => {
+                total += parseInt(i.value);
+                i.nextElementSibling.innerText = i.value;
+            });
+            // SPADI Simplificado (5 items visuales * 20 = 100 max, approx) 
+            // Para precisión total usamos regla de 3 con los items visibles. 
+            // Aqui son 5 items de muestra. Max score = 50. 
+            // Formula: (Total / 50) * 100
+            spadiValue = Math.round((total / 50) * 100);
+            document.getElementById('spadi-score').innerText = spadiValue + "%";
+            updateFinalScores();
+        }
+        
+        function calculateSpadiFull() {
+            // Simulación simple para no llenar la UI
+            let val = prompt("Ingresa el valor total del SPADI (0-130) si lo hiciste en papel:", "");
+            if(val) {
+                spadiValue = Math.round((val / 130) * 100);
+                document.getElementById('spadi-score').innerText = spadiValue + "%";
+                updateFinalScores();
+            }
+        }
+
+        function updateDash(input) {
+            input.nextElementSibling.innerText = input.value;
+            const inputs = document.querySelectorAll('.dash-item');
+            let sum = 0;
+            inputs.forEach(i => sum += parseInt(i.value));
+            // Formula QuickDASH: ((Sum / n) - 1) * 25. n=11.
+            let avg = sum / 11;
+            dashValue = Math.round((avg - 1) * 25);
+            document.getElementById('dash-score-display').innerText = dashValue + "%";
+            updateFinalScores();
+        }
+
+        function updateFinalScores() {
+            document.getElementById('final-scores').value = `SPADI: ${spadiValue}% | QuickDASH: ${dashValue}%`;
+        }
+
+        // 4. ALGORITMO CLÍNICO + RECOMENDACIÓN SPADI
+        function runClinicalLogic() {
+            let dx = "Evaluación Inespecífica";
+            let reason = "No hay patrón claro de clúster.";
+            
+            // Reglas Diagnósticas
+            if (state['test-arc'] === 'pos' && state['f-re'] === 'pos' && state['test-drop'] === 'pos') {
+                dx = "Desgarro Manguito Rotador (Sospecha)";
+                reason = "Cluster positivo: Arco + Debilidad RE + Drop Arm.";
+            } else if (state['test-arc'] === 'pos' && state['mod-sat'] === 'pos') {
+                dx = "Dolor Subacromial / Disf. Escapular";
+                reason = "Dolor mejora con SAT (Asistencia).";
+            } else if (state['pat-cap'] === 'pos') {
+                dx = "Capsulitis Adhesiva";
+                reason = "Patrón Capsular presente.";
+            } else if (state['test-app'] === 'pos') {
+                dx = "Inestabilidad Glenohumeral";
+                reason = "Aprehensión positiva.";
+            } else if (state['scr-cerv'] === 'pos') {
+                dx = "Cervical Referido";
+                reason = "Cuello reproduce síntomas.";
+            } else if (state['test-jobe'] === 'pos' || state['f-re'] === 'pos') {
+                dx = "Dolor Manguito Rotador";
+                reason = "Tests resistidos positivos.";
+            }
+
+            // Recomendación basada en Scores
+            let reco = "";
+            let maxScore = Math.max(spadiValue, dashValue);
+            
+            if (maxScore > 60) {
+                reco = "🔴 Discapacidad ALTA (>60%): Priorizar control del dolor, educación y ejercicios isométricos suaves. Evitar rangos dolorosos.";
+            } else if (maxScore > 30) {
+                reco = "🟡 Discapacidad MODERADA (30-60%): Iniciar carga progresiva y corrección de movimiento. Enfasis en control motor.";
+            } else {
+                reco = "🟢 Discapacidad LEVE (<30%): Enfocar en fuerza final, resistencia y retorno deportivo/laboral.";
+            }
+
+            // Mostrar
+            document.getElementById('logic-output').classList.remove('hidden');
+            document.getElementById('logic-text').innerHTML = `<strong>${dx}</strong><br>${reason}`;
+            document.getElementById('reco-text').innerText = `📊 Análisis PROMs: ${reco}`;
+            
+            // Autollenado
+            document.getElementById('dx-principal').value = dx;
+        }
+
+        // 5. SALIDAS (WhatsApp / Copia)
+        function openPatientModal() {
+            const nombre = document.getElementById('nombre').value || "Paciente";
+            const dx = document.getElementById('dx-principal').value || "En evaluación";
+            const tarea = document.getElementById('homework').value || "Seguir indicaciones.";
+            
+            let mods = [];
+            document.querySelectorAll('.tag-btn.active').forEach(b => mods.push(b.innerText));
+            
+            const text = `HOLA ${nombre.toUpperCase()} 👋
+Resumen Evaluación Hombro All u moves:
+
+🔎 DIAGNÓSTICO: ${dx}
+📊 NIVEL DISCAPACIDAD: ${Math.max(spadiValue, dashValue)}% (Referencial)
+
+🛠️ PLAN DE TRABAJO:
+Enfoque en: ${mods.join(", ") || "Rehabilitación integral"}.
+
+🏠 TAREA:
+${tarea}
+
+- Tu Kinesiólogo`;
+
+            document.getElementById('patient-text').innerText = text;
+            document.getElementById('modal-patient').classList.remove('hidden');
+        }
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(document.getElementById('patient-text').innerText).then(() => alert("Copiado!"));
+        }
+
+        function sendWhatsApp() {
+            const nombre = document.getElementById('nombre').value;
+            const dx = document.getElementById('dx-principal').value;
+            const score = document.getElementById('final-scores').value;
+            if(!nombre) return alert("Falta nombre");
+            
+            const msg = `Hola ${nombre}, resumen Kine:\nDx: ${dx}\n${score}\nRevisar pauta enviada.`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+    </script>
+</body>
+</html>
